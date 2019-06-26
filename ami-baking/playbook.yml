@@ -1,0 +1,17 @@
+---
+- hosts: all
+  vars:
+    binary_extract_directory: "/home/ec2-user"
+    app_directory: "{{ binary_extract_directory }}/{{ app_name }}-{{ app_version }}"
+    app_user: "ec2-user"
+  tasks:
+    - import_role:
+        name: "s3-presigned-download"
+      vars:
+        s3_object_bucket: "{{ app_binary_bucket }}"
+        s3_object_key: "{{ app_binary_key }}"
+        s3_object_extract_destination: "{{ binary_extract_directory }}"
+    - block:
+      become: yes
+      become_method: sudo
+      become_user: root
