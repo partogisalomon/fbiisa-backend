@@ -11,7 +11,3 @@
       s3_object_bucket: "{{ app_binary_bucket }}"
       s3_object_key: "{{ app_binary_key }}"
       s3_object_extract_destination: "{{ binary_extract_directory }}"
-  - block:
-    become: yes
-    become_method: sudo
-    become_user: root
