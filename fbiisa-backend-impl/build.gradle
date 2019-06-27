@@ -1,0 +1,19 @@
+apply plugin: 'com.traveloka.common.gradle.base-application'
+mainClassName = "Main"
+applicationName = "fbiisa"
+
+
+travelokaApplication {
+    config {
+        sourceConfigDir = "config"
+    }
+    productDomain = "fbi"
+    s3BinaryRegion = "ap-southeast-1";
+    s3BinaryBucket = "fbi-appbin-015110552125-f9e5adc992ee8fc4"
+    s3PlaybookBucket = "fbi-appbin-015110552125-f9e5adc992ee8fc4"
+    s3PlaybookKey = "${applicationName}/playbook.zip"
+    s3BinaryKey = "${applicationName}/${project.version}.tgz"
+}
+
+dependencies {
+}

@@ -1,0 +1,46 @@
+#!/usr/bin/env groovy
+
+@Library("backend-jenkins")
+import com.traveloka.common.jenkins.beiartf.BeiartfUtil
+
+node("aws-ecs") {
+    timestamps {
+        def currentDir = pwd()
+
+        String ZIP_DIR = currentDir + "/fbiisa-backend-impl/build/distributions"
+
+        stage("checkout") {
+            checkout scm
+        }
+
+        stage("build") {
+            withCredentials([
+                    [
+                            $class           : 'AmazonWebServicesCredentialsBinding',
+                            accessKeyVariable: "AWS_ACCESS_KEY_ID",
+                            credentialsId    : 'tvlk-dev-user-jenkins',
+                            secretKeyVariable: "AWS_SECRET_ACCESS_KEY"
+                    ]
+            ]) {
+                BeiartfUtil.assumeRole(this)
+            }
+
+            sh "./gradlew :fbiisa-backend-impl:distZip"
+        }
+
+        stage("label") {
+            def VERSION = sh script: "ls $ZIP_DIR", returnStdout: true
+            currentBuild.displayName = "#$BUILD_NUMBER $VERSION"
+            currentBuild.description = "Release Version $VERSION"
+        }
+
+        stage("publish") {
+            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'tvlk-dev-user-jenkins', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                BeiartfUtil.assumeRole(this)
+            }
+            withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', accessKeyVariable: 'AWS_ACCESS_KEY_ID', credentialsId: 'traveloka-builds-credential-s3', secretKeyVariable: 'AWS_SECRET_ACCESS_KEY']]) {
+                sh './gradlew :fbiisa-backend-impl:uploadAmiBakingManifest -Pversion=$(git rev-parse --short HEAD)'
+            }
+        }
+    }
+}
