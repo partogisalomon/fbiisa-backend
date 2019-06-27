@@ -1,3 +1,3 @@
-- src: https://github.com/traveloka/ansible-s3--presigned-download
+- src: https://github.com/traveloka/ansible-s3-archive-presigned-download
   name: s3-presigned-download
   version: v0.1.1
